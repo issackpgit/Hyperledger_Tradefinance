@@ -24,6 +24,22 @@ type Contract struct {
 	Comment string `json:"comment`
 }
 
+type POJSON struct {
+		
+		UID 		string `json:"UID"`
+		Status string `json:"Status"`
+		ImporterName string `json:"ImporterName"`
+		ExporterName string `json:"ExporterName"`
+		ImporterBankName string `json:"ImporterBankName"`
+		ExporterBankName string `json:"ExporterBankName"`
+		ImporterCert string `json:"ImporterCert"`
+		ExporterCert string `json:"ExporterCert"`
+		ImporterBankCert 	string `json:"ImporterBankCert"`
+		ExporterBankCert string `json:"ExporterBankCert"`
+		ShippingCompany string `json:"ShippingCompany"`
+		InsuranceCompany string `json:"InsuranceCompany"`
+}
+
 // ContractsList struct
 type ContractsList struct {
 	Contracts []Contract `json:"contracts"`
@@ -90,6 +106,8 @@ func (t *TF) Init(stub shim.ChaincodeStubInterface, function string, args []stri
 		&shim.ColumnDefinition{Name: "ExporterCert", Type: shim.ColumnDefinition_BYTES, Key: false},
 		&shim.ColumnDefinition{Name: "ImporterBankCert", Type: shim.ColumnDefinition_BYTES, Key: false},
 		&shim.ColumnDefinition{Name: "ExporterBankCert", Type: shim.ColumnDefinition_BYTES, Key: false},
+        &shim.ColumnDefinition{Name: "ShippingCompany", Type: shim.ColumnDefinition_STRING, Key: false},
+        &shim.ColumnDefinition{Name: "InsuranceCompany", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
 	if err != nil {
 		return nil, errors.New("Failed creating BPTable.")
@@ -354,6 +372,58 @@ func (t *TF) isCallerParticipant(stub shim.ChaincodeStubInterface, args []string
 	}
 
 	return true, nil
+}
+
+func (t *TF) GetBPJSON(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 1.")
+	}
+
+	UID := args[0]
+    var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+	col2 := shim.Column{Value: &shim.Column_String_{String_: UID}}
+	columns = append(columns, col2)
+
+    
+   row, err := stub.GetRow("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Error: Failed retrieving document with ContractNo %s. Error %s", UID, err.Error())
+	}
+
+	// GetRows returns empty message if key does not exist
+	if len(row.Columns) == 0 {
+		return nil, nil
+	}
+    var poJSON POJSON 
+
+	poJSON.UID = row.Columns[1].GetString_()
+	poJSON.Status = row.Columns[2].GetString_()
+	poJSON.ImporterName = row.Columns[3].GetString_() 
+	poJSON.ExporterName = row.Columns[4].GetString_()
+	poJSON.ImporterBankName = row.Columns[5].GetString_()
+	poJSON.ExporterBankName = row.Columns[6].GetString_()
+	poJSON.ImporterCert = row.Columns[7].GetString_()
+	poJSON.ExporterCert = row.Columns[8].GetString_()
+	poJSON.ImporterBankCert = row.Columns[9].GetString_()
+	poJSON.ExporterBankCert = row.Columns[10].GetString_()
+	poJSON.ShippingCompany = row.Columns[11].GetString_()
+	poJSON.InsuranceCompany = row.Columns[12].GetString_()
+	
+
+	jsonPO, err := json.Marshal(poJSON)
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	fmt.Println(jsonPO)
+
+ 	return jsonPO, nil
+
 }
 
 
@@ -834,6 +904,8 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 		exporterCert := []byte(args[7])
 		importerBankCert := []byte(args[8])
 		exporterBankCert := []byte(args[9])
+        shippingCompany := "Testship"
+        insuranceCompany := "Testinsu"
 
 		// Insert a row
 		ok, err := stub.InsertRow("BPTable", shim.Row{
@@ -848,7 +920,9 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 				&shim.Column{Value: &shim.Column_Bytes{Bytes: importerCert}},
 				&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterCert}},
 				&shim.Column{Value: &shim.Column_Bytes{Bytes: importerBankCert}},
-				&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterBankCert}}},
+				&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterBankCert}},
+                &shim.Column{Value: &shim.Column_String_{String_: shippingCompany}},
+                &shim.Column{Value: &shim.Column_String_{String_: insuranceCompany}}},
 		})
 
 		if err != nil {
@@ -954,6 +1028,57 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 		BLJSON := args[4]
 		invoiceJSON := args[5]
 		packingListJSON := args[6]
+        shippingCompany := args[7]
+        insuranceCompany := args[8]
+        
+        
+        var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+	col2 := shim.Column{Value: &shim.Column_String_{String_: contractID}}
+	columns = append(columns, col2)
+
+    
+   row, err := stub.GetRow("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Error: Failed retrieving document with ContractNo %s. Error %s", contractID, err.Error())
+	}
+
+	// GetRows returns empty message if key does not exist
+	if len(row.Columns) == 0 {
+		return nil, nil
+	}
+        
+        importerName := row.Columns[3].GetString_()
+        exporterName := row.Columns[4].GetString_()
+        importerBankName := row.Columns[5].GetString_()
+        exporterBankName := row.Columns[6].GetString_()
+        importerCert := row.Columns[7].GetBytes()
+        exporterCert := row.Columns[8].GetBytes()
+        importerBankCert := row.Columns[9].GetBytes()
+        exporterBankCert := row.Columns[10].GetBytes()
+            
+        ok, err := stub.ReplaceRow("BPTable", shim.Row{
+		Columns: []*shim.Column{
+			&shim.Column{Value: &shim.Column_String_{String_: "BP"}},
+			&shim.Column{Value: &shim.Column_String_{String_: contractID}},
+			&shim.Column{Value: &shim.Column_String_{String_: "STARTED"}},
+			&shim.Column{Value: &shim.Column_String_{String_: importerName}},
+			&shim.Column{Value: &shim.Column_String_{String_: exporterName}},
+			&shim.Column{Value: &shim.Column_String_{String_: importerBankName}},
+			&shim.Column{Value: &shim.Column_String_{String_: exporterBankName}},
+            &shim.Column{Value: &shim.Column_Bytes{Bytes: importerCert}},
+			&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterCert}},
+			&shim.Column{Value: &shim.Column_Bytes{Bytes: importerBankCert}},
+			&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterBankCert}},
+        	&shim.Column{Value: &shim.Column_String_{String_: shippingCompany}},
+			&shim.Column{Value: &shim.Column_String_{String_: insuranceCompany}},
+        }})
+
+	if !ok && err == nil {
+
+		return nil, errors.New("Document unable to Update.")
+	}
 
 		//Get the corresponding LC
 		lcJSON, err := t.lc.GetJSON(stub, []string{contractID})
@@ -1178,7 +1303,11 @@ func (t *TF) Query(stub shim.ChaincodeStubInterface, function string, args []str
 		}
 
 		return t.lc.GetJSON(stub, args)
-	} else if function == "getContractCerts"{
+    } else if function == "getBP"{
+        
+        return t.GetBPJSON(stub, args)
+        
+    } else if function == "getContractCerts"{
 
 		return t.getContractCerts(stub,args)
 

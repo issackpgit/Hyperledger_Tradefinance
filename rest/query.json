@@ -1,0 +1,17 @@
+{
+  "jsonrpc": "2.0",
+  "method": "query",
+  "params": {
+      "type": 1,
+      "chaincodeID":{
+        "name":"7e86caa7573947ce2f8867e2a05418eb6048ccb434638e454df901e04f54eeee6f9f131a7ac2e51cc98b9db3c8dc00254b1414fc9158a78debc09e4f8fa5486b"
+      },
+      "ctorMsg": {
+        "function":"getNumContracts",
+        "args":[]
+      },
+      "secureContext": "lukas"
+  },
+  "id": 5
+}
+
