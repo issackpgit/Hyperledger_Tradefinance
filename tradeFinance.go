@@ -579,6 +579,504 @@ func (t *TF) listContracts(stub shim.ChaincodeStubInterface, args []string) ([]b
 	return json.Marshal(allContractsList)
 }
 
+func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	if len(args) != 2 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 2.")
+		}
+    
+    
+    var allContractsList ContractsList
+    
+    companyID := args[0]
+		roleID := args[1]
+    
+    if roleID == "4" {
+        
+       var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+
+	rows, err := stub.GetRows("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve row")
+	} 
+        
+        allContractsList.Contracts = make([]Contract, 0)
+        
+        //var contractIDOfUser ContractsList1
+        
+        for row := range rows {
+					
+					//contractIDOfUser.ContractNo = ""
+				
+					if len(row.Columns) == 0 { 
+
+						break 
+					
+					}
+            
+            
+            var nextContract Contract
+		
+            
+            if row.Columns[3].GetString_() == companyID{
+				
+	 		nextContract.ContractID = row.Columns[1].GetString_()
+					 	
+		
+            
+            if nextContract.ContractID != "" {
+                
+                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		if err != nil {
+			return nil, err
+		}
+		
+		if string(b)== "ACCEPTED_BY_EB"{
+
+			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
+			if string(b1) == "" {
+			nextContract.ContractStatus = string(b)
+			} else{
+
+					nextContract.ContractStatus=string(b1)
+				}
+
+		}else{
+
+		nextContract.ContractStatus = string(b)
+		nextContract.Comment= string(c)
+	   }
+            
+            if accessControlFlag == true {
+			res, err := t.isCallerParticipant(stub, []string{nextContract.ContractID})
+			if err != nil {
+				return nil, err
+			}
+			if res == true {
+				allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+			}
+		} else {
+			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+		}
+            
+            }
+                
+            }
+
+        
+                  
+        }
+    
+    }
+    
+        if roleID == "1" {
+        
+       var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+
+	rows, err := stub.GetRows("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve row")
+	} 
+        
+        allContractsList.Contracts = make([]Contract, 0)
+        
+        //var contractIDOfUser ContractsList1
+        
+        for row := range rows {
+					
+					//contractIDOfUser.ContractNo = ""
+				
+					if len(row.Columns) == 0 { 
+
+						break 
+					
+					}
+            
+            
+            var nextContract Contract
+		
+            
+            if row.Columns[4].GetString_() == companyID{
+				
+	 		nextContract.ContractID = row.Columns[1].GetString_()
+					 	
+		
+            
+            if nextContract.ContractID != "" {
+                
+                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		if err != nil {
+			return nil, err
+		}
+		
+		if string(b)== "ACCEPTED_BY_EB"{
+
+			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
+			if string(b1) == "" {
+			nextContract.ContractStatus = string(b)
+			} else{
+
+					nextContract.ContractStatus=string(b1)
+				}
+
+		}else{
+
+		nextContract.ContractStatus = string(b)
+		nextContract.Comment= string(c)
+	   }
+            
+            if accessControlFlag == true {
+			res, err := t.isCallerParticipant(stub, []string{nextContract.ContractID})
+			if err != nil {
+				return nil, err
+			}
+			if res == true {
+				allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+			}
+		} else {
+			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+		}
+            
+            }
+                
+            }
+
+        
+                  
+        }
+    
+    }
+    
+        if roleID == "5" {
+        
+       var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+
+	rows, err := stub.GetRows("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve row")
+	} 
+        
+        allContractsList.Contracts = make([]Contract, 0)
+        
+        //var contractIDOfUser ContractsList1
+        
+        for row := range rows {
+					
+					//contractIDOfUser.ContractNo = ""
+				
+					if len(row.Columns) == 0 { 
+
+						break 
+					
+					}
+            
+            
+            var nextContract Contract
+		
+            
+            if row.Columns[5].GetString_() == companyID{
+				
+	 		nextContract.ContractID = row.Columns[1].GetString_()
+					 	
+		
+            
+            if nextContract.ContractID != "" {
+                
+                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		if err != nil {
+			return nil, err
+		}
+		
+		if string(b)== "ACCEPTED_BY_EB"{
+
+			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
+			if string(b1) == "" {
+			nextContract.ContractStatus = string(b)
+			} else{
+
+					nextContract.ContractStatus=string(b1)
+				}
+
+		}else{
+
+		nextContract.ContractStatus = string(b)
+		nextContract.Comment= string(c)
+	   }
+            
+            if accessControlFlag == true {
+			res, err := t.isCallerParticipant(stub, []string{nextContract.ContractID})
+			if err != nil {
+				return nil, err
+			}
+			if res == true {
+				allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+			}
+		} else {
+			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+		}
+            
+            }
+                
+            }
+
+        
+                  
+        }
+    
+    }
+    
+        if roleID == "2" {
+        
+       var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+
+	rows, err := stub.GetRows("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve row")
+	} 
+        
+        allContractsList.Contracts = make([]Contract, 0)
+        
+        //var contractIDOfUser ContractsList1
+        
+        for row := range rows {
+					
+					//contractIDOfUser.ContractNo = ""
+				
+					if len(row.Columns) == 0 { 
+
+						break 
+					
+					}
+            
+            
+            var nextContract Contract
+		
+            
+            if row.Columns[6].GetString_() == companyID{
+				
+	 		nextContract.ContractID = row.Columns[1].GetString_()
+					 	
+		
+            
+            if nextContract.ContractID != "" {
+                
+                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		if err != nil {
+			return nil, err
+		}
+		
+		if string(b)== "ACCEPTED_BY_EB"{
+
+			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
+			if string(b1) == "" {
+			nextContract.ContractStatus = string(b)
+			} else{
+
+					nextContract.ContractStatus=string(b1)
+				}
+
+		}else{
+
+		nextContract.ContractStatus = string(b)
+		nextContract.Comment= string(c)
+	   }
+            
+            if accessControlFlag == true {
+			res, err := t.isCallerParticipant(stub, []string{nextContract.ContractID})
+			if err != nil {
+				return nil, err
+			}
+			if res == true {
+				allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+			}
+		} else {
+			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+		}
+            
+            }
+                
+            }
+
+        
+                  
+        }
+    
+    }
+    
+    if roleID == "3" {
+        
+       var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+
+	rows, err := stub.GetRows("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve row")
+	} 
+        
+        allContractsList.Contracts = make([]Contract, 0)
+        
+        //var contractIDOfUser ContractsList1
+        
+        for row := range rows {
+					
+					//contractIDOfUser.ContractNo = ""
+				
+					if len(row.Columns) == 0 { 
+
+						break 
+					
+					}
+            
+            
+            var nextContract Contract
+		
+            
+            if row.Columns[11].GetString_() == companyID{
+				
+	 		nextContract.ContractID = row.Columns[1].GetString_()
+					 	
+		
+            
+            if nextContract.ContractID != "" {
+                
+                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		if err != nil {
+			return nil, err
+		}
+		
+		if string(b)== "ACCEPTED_BY_EB"{
+
+			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
+			if string(b1) == "" {
+			nextContract.ContractStatus = string(b)
+			} else{
+
+					nextContract.ContractStatus=string(b1)
+				}
+
+		}else{
+
+		nextContract.ContractStatus = string(b)
+		nextContract.Comment= string(c)
+	   }
+            
+            if accessControlFlag == true {
+			res, err := t.isCallerParticipant(stub, []string{nextContract.ContractID})
+			if err != nil {
+				return nil, err
+			}
+			if res == true {
+				allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+			}
+		} else {
+			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+		}
+            
+            }
+                
+            }
+
+        
+                  
+        }
+    
+    }
+    
+    if roleID == "6" {
+        
+       var columns []shim.Column
+	col1 := shim.Column{Value: &shim.Column_String_{String_: "BP"}}
+	columns = append(columns, col1)
+
+	rows, err := stub.GetRows("BPTable", columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve row")
+	} 
+        
+        allContractsList.Contracts = make([]Contract, 0)
+        
+        //var contractIDOfUser ContractsList1
+        
+        for row := range rows {
+					
+					//contractIDOfUser.ContractNo = ""
+				
+					if len(row.Columns) == 0 { 
+
+						break 
+					
+					}
+            
+            
+            var nextContract Contract
+		
+            
+            if row.Columns[12].GetString_() == companyID{
+				
+	 		nextContract.ContractID = row.Columns[1].GetString_()
+					 	
+		
+            
+            if nextContract.ContractID != "" {
+                
+                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		if err != nil {
+			return nil, err
+		}
+		
+		if string(b)== "ACCEPTED_BY_EB"{
+
+			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
+			if string(b1) == "" {
+			nextContract.ContractStatus = string(b)
+			} else{
+
+					nextContract.ContractStatus=string(b1)
+				}
+
+		}else{
+
+		nextContract.ContractStatus = string(b)
+		nextContract.Comment= string(c)
+	   }
+            
+            if accessControlFlag == true {
+			res, err := t.isCallerParticipant(stub, []string{nextContract.ContractID})
+			if err != nil {
+				return nil, err
+			}
+			if res == true {
+				allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+			}
+		} else {
+			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
+		}
+            
+            }
+                
+            }
+
+        
+                  
+        }
+    
+    }
+    
+    return json.Marshal(allContractsList)
+        
+}
+
+
+
+
 // listContractsByRole  lists all the contracts where the user belongs to the provided role.
 //Fabric version migration to 0.6
 //func (t *TF) listContractsByRole(stub *shim.ChaincodeStub, args []string) ([]byte, error) {
@@ -1459,7 +1957,10 @@ func (t *TF) Query(stub shim.ChaincodeStubInterface, function string, args []str
 	} else if function == "listContractsByRole" {
 
 		return t.listContractsByRole(stub, args)
-	} else if function == "listLCsByStatus" {
+	} else if function == "listContractsByRoleName" {
+     
+     return t.listContractsByRoleName(stub, args)   
+    } else if function == "listLCsByStatus" {
 
 		return t.listLCsByStatus(stub, args)
 	} else if function == "listEDsByStatus" {
