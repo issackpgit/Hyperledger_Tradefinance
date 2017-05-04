@@ -32,10 +32,10 @@ type POJSON struct {
 		ExporterName string `json:"ExporterName"`
 		ImporterBankName string `json:"ImporterBankName"`
 		ExporterBankName string `json:"ExporterBankName"`
-		ImporterCert string `json:"ImporterCert"`
-		ExporterCert string `json:"ExporterCert"`
-		ImporterBankCert 	string `json:"ImporterBankCert"`
-		ExporterBankCert string `json:"ExporterBankCert"`
+		ImporterCert []byte `json:"ImporterCert"`
+		ExporterCert []byte `json:"ExporterCert"`
+		ImporterBankCert 	[]byte `json:"ImporterBankCert"`
+		ExporterBankCert []byte `json:"ExporterBankCert"`
 		ShippingCompany string `json:"ShippingCompany"`
 		InsuranceCompany string `json:"InsuranceCompany"`
 }
@@ -405,10 +405,10 @@ func (t *TF) GetBPJSON(stub shim.ChaincodeStubInterface, args []string) ([]byte,
 	poJSON.ExporterName = row.Columns[4].GetString_()
 	poJSON.ImporterBankName = row.Columns[5].GetString_()
 	poJSON.ExporterBankName = row.Columns[6].GetString_()
-	poJSON.ImporterCert = row.Columns[7].GetString_()
-	poJSON.ExporterCert = row.Columns[8].GetString_()
-	poJSON.ImporterBankCert = row.Columns[9].GetString_()
-	poJSON.ExporterBankCert = row.Columns[10].GetString_()
+	poJSON.ImporterCert = row.Columns[7].GetBytes()
+	poJSON.ExporterCert = row.Columns[8].GetBytes()
+	poJSON.ImporterBankCert = row.Columns[9].GetBytes()
+	poJSON.ExporterBankCert = row.Columns[10].GetBytes()
 	poJSON.ShippingCompany = row.Columns[11].GetString_()
 	poJSON.InsuranceCompany = row.Columns[12].GetString_()
 	
@@ -1011,7 +1011,7 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 		return t.lc.ReSubmitDoc(stub, []string{UID, lcJSON, "", comment})
 
 	}  else if function == "submitED" {
-		if accessControlFlag == true {
+		/*if accessControlFlag == true {
 			res, err := t.isCallerExporterBank(stub, []string{args[0]})
 			if err != nil {
 				return nil, err
@@ -1019,7 +1019,12 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 			if res == false {
 				return nil, errors.New("Access denied.")
 			}
+		}*/
+        
+        if len(args) != 9 {
+			return nil, fmt.Errorf("Incorrect number of arguments. Expecting 9. Got: %d.", len(args))
 		}
+        
 
 		contractID := args[0]
 		BLPDF := args[1]
@@ -1028,8 +1033,8 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 		BLJSON := args[4]
 		invoiceJSON := args[5]
 		packingListJSON := args[6]
-        shippingCompany := args[7]
-        insuranceCompany := args[8]
+        shippingCompanyname := args[7]
+        insuranceCompanyname := args[8]
         
         
         var columns []shim.Column
@@ -1057,7 +1062,15 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
         exporterCert := row.Columns[8].GetBytes()
         importerBankCert := row.Columns[9].GetBytes()
         exporterBankCert := row.Columns[10].GetBytes()
-            
+        
+       /*err = stub.DeleteRow(
+		"BPTable",
+		columns,
+	)
+	if err != nil {
+		return nil, errors.New("Failed deleting row.")
+	}
+           */ 
         ok, err := stub.ReplaceRow("BPTable", shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: "BP"}},
@@ -1071,9 +1084,10 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 			&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterCert}},
 			&shim.Column{Value: &shim.Column_Bytes{Bytes: importerBankCert}},
 			&shim.Column{Value: &shim.Column_Bytes{Bytes: exporterBankCert}},
-        	&shim.Column{Value: &shim.Column_String_{String_: shippingCompany}},
-			&shim.Column{Value: &shim.Column_String_{String_: insuranceCompany}},
-        }})
+        	&shim.Column{Value: &shim.Column_String_{String_: shippingCompanyname}},
+			&shim.Column{Value: &shim.Column_String_{String_: insuranceCompanyname}},
+        },
+        })
 
 	if !ok && err == nil {
 
@@ -1182,10 +1196,10 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 			return nil, err
 		}
 
-		if lc.Tag42C == "Sight" {
+		/*if lc.Tag42C == "Sight" {
 
 			t.lc.UpdateStatus(stub, []string{args[0],"Payment_Due", "PAYMENT_DUE_FROM_IB_TO_EB"})
-		}
+		}*/
 
 		args = append(args, "ACCEPTED_BY_IB")
 
