@@ -603,36 +603,22 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
         
         allContractsList.Contracts = make([]Contract, 0)
         
-        //var contractIDOfUser ContractsList1
-        
-        for row := range rows {
-					
-					//contractIDOfUser.ContractNo = ""
-				
-					if len(row.Columns) == 0 { 
-
-						break 
-					
-					}
-            
-            
+          for row := range rows {
+			if len(row.Columns) == 0 { 
+                break 
+            }
+                        
             var nextContract Contract
-		
-            
+		            
             if row.Columns[3].GetString_() == companyID{
-				
-	 		nextContract.ContractID = row.Columns[1].GetString_()
-					 	
+		      nextContract.ContractID = row.Columns[1].GetString_()
+			      if nextContract.ContractID != "" {
+                        b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
+		                      if err != nil {
+			                     return nil, err
+                                }
 		
-            
-            if nextContract.ContractID != "" {
-                
-                b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
-		if err != nil {
-			return nil, err
-		}
-		
-		if string(b)== "ACCEPTED_BY_EB"{
+		  if string(b)== "ACCEPTED_BY_EB"{
 
 			b1,_ := t.bl.GetStatus(stub,[]string{nextContract.ContractID})
 			if string(b1) == "" {
@@ -659,16 +645,10 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
 		} else {
 			allContractsList.Contracts = append(allContractsList.Contracts, nextContract)
 		}
-            
-            }
-                
-            }
-
-        
-                  
+          }
         }
-    
-    }
+          }
+        }
     
         if roleID == "1" {
         
@@ -743,10 +723,7 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
             }
                 
             }
-
-        
-                  
-        }
+     }
     
     }
     
@@ -762,13 +739,9 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
 	} 
         
         allContractsList.Contracts = make([]Contract, 0)
-        
-        //var contractIDOfUser ContractsList1
-        
+   
         for row := range rows {
-					
-					//contractIDOfUser.ContractNo = ""
-				
+									
 					if len(row.Columns) == 0 { 
 
 						break 
@@ -823,8 +796,6 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
             }
                 
             }
-
-        
                   
         }
     
@@ -842,14 +813,10 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
 	} 
         
         allContractsList.Contracts = make([]Contract, 0)
-        
-        //var contractIDOfUser ContractsList1
-        
+     
         for row := range rows {
 					
-					//contractIDOfUser.ContractNo = ""
-				
-					if len(row.Columns) == 0 { 
+            if len(row.Columns) == 0 { 
 
 						break 
 					
@@ -862,9 +829,7 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
             if row.Columns[6].GetString_() == companyID{
 				
 	 		nextContract.ContractID = row.Columns[1].GetString_()
-					 	
-		
-            
+			            
             if nextContract.ContractID != "" {
                 
                 b,c, err := t.lc.GetStatus(stub,[]string{nextContract.ContractID})
@@ -903,9 +868,7 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
             }
                 
             }
-
-        
-                  
+      
         }
     
     }
@@ -923,13 +886,9 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
         
         allContractsList.Contracts = make([]Contract, 0)
         
-        //var contractIDOfUser ContractsList1
-        
         for row := range rows {
 					
-					//contractIDOfUser.ContractNo = ""
-				
-					if len(row.Columns) == 0 { 
+				if len(row.Columns) == 0 { 
 
 						break 
 					
@@ -983,8 +942,6 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
             }
                 
             }
-
-        
                   
         }
     
@@ -1063,8 +1020,6 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
             }
                 
             }
-
-        
                   
         }
     
@@ -1073,8 +1028,6 @@ func (t *TF) listContractsByRoleName(stub shim.ChaincodeStubInterface, args []st
     return json.Marshal(allContractsList)
         
 }
-
-
 
 
 // listContractsByRole  lists all the contracts where the user belongs to the provided role.
@@ -1402,8 +1355,8 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 		exporterCert := []byte(args[7])
 		importerBankCert := []byte(args[8])
 		exporterBankCert := []byte(args[9])
-        shippingCompany := "Testship"
-        insuranceCompany := "Testinsu"
+        shippingCompany := ""
+        insuranceCompany := ""
 
 		// Insert a row
 		ok, err := stub.InsertRow("BPTable", shim.Row{
@@ -1729,7 +1682,7 @@ func (t *TF) crossCheckDocs(args []string) (bool, error) {
 			}
 		}
 
-		args = append(args, "REJECTED")
+		args = append(args, "REJECTED_BY_IB")
 
 		_, err := t.bl.UpdateStatus(stub, args)
 		if err != nil {
